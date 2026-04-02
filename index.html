@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Buddy - 18 Species Gallery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e; color: #e0e0e0;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    padding: 2rem;
+  }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.3rem; color: #f5a623; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 2rem; font-size: 0.85rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(245,166,35,0.15);
+    border-color: #f5a623;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.6rem; border-bottom: 1px solid #0f3460; padding-bottom: 0.5rem;
+  }
+  .species-name { font-size: 1.1rem; font-weight: 700; color: #e94560; text-transform: capitalize; }
+  .face { color: #f5a623; font-size: 0.9rem; }
+  .frames { display: flex; gap: 0.6rem; justify-content: center; }
+  .frame-box {
+    background: #0a0a1a; border-radius: 6px; padding: 0.5rem 0.6rem;
+    position: relative; min-width: 0; flex: 1;
+  }
+  .frame-label {
+    position: absolute; top: 2px; right: 6px;
+    font-size: 0.55rem; color: #555; font-weight: 600;
+  }
+  .frame-box pre {
+    font-size: 0.72rem; line-height: 1.25; white-space: pre;
+    color: #c8d6e5; margin: 0; text-align: center;
+  }
+  .frame-box.active pre { color: #f5a623; }
+  .hats-section {
+    margin-top: 3rem; max-width: 1400px; margin-left: auto; margin-right: auto;
+  }
+  .hats-section h2 { color: #f5a623; margin-bottom: 1rem; font-size: 1.3rem; }
+  .hats-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .hat-card {
+    background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
+    padding: 0.8rem 1rem; text-align: center;
+  }
+  .hat-card .hat-name { color: #e94560; font-weight: 600; margin-bottom: 0.3rem; text-transform: capitalize; }
+  .hat-card pre { font-size: 0.8rem; color: #c8d6e5; margin: 0; }
+  .eyes-section { margin-top: 2rem; max-width: 1400px; margin-left: auto; margin-right: auto; }
+  .eyes-section h2 { color: #f5a623; margin-bottom: 0.5rem; font-size: 1.3rem; }
+  .eyes-list { display: flex; gap: 1.5rem; font-size: 1.5rem; color: #c8d6e5; }
+  .eye-item { text-align: center; }
+  .eye-item span { display: block; font-size: 0.7rem; color: #888; margin-top: 0.2rem; }
+  .controls { text-align: center; margin-bottom: 1.5rem; }
+  .controls button {
+    background: #0f3460; color: #e0e0e0; border: 1px solid #f5a623;
+    padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-family: inherit;
+    font-size: 0.8rem; margin: 0 0.3rem;
+  }
+  .controls button.active { background: #f5a623; color: #1a1a2e; font-weight: 700; }
+  .controls button:hover { background: #e94560; border-color: #e94560; color: #fff; }
+  .info { max-width: 1400px; margin: 2rem auto 0; padding: 1rem; background: #16213e;
+    border-radius: 8px; border: 1px solid #0f3460; font-size: 0.8rem; color: #888; line-height: 1.6; }
+  .info strong { color: #f5a623; }
+</style>
+</head>
+<body>
+
+<h1>Claude Code Buddy Gallery</h1>
+<p class="subtitle">18 Species / 6 Eyes / 8 Hats / 5 Rarities &mdash; ASCII Art Companion System</p>
+
+<div class="controls">
+  <span style="color:#888; font-size:0.8rem; margin-right:0.5rem;">Eye Style:</span>
+  <button class="eye-btn active" data-eye="·">· (default)</button>
+  <button class="eye-btn" data-eye="✦">✦</button>
+  <button class="eye-btn" data-eye="×">×</button>
+  <button class="eye-btn" data-eye="◉">◉</button>
+  <button class="eye-btn" data-eye="@">@</button>
+  <button class="eye-btn" data-eye="°">°</button>
+  &nbsp;&nbsp;
+  <button id="animateBtn">Animate</button>
+</div>
+
+<div class="grid" id="gallery"></div>
+
+<div class="hats-section">
+  <h2>Hats</h2>
+  <div class="hats-grid" id="hats"></div>
+</div>
+
+<div class="info">
+  <strong>Rarity System:</strong> common (60%) ★ &bull; uncommon (25%) ★★ &bull; rare (10%) ★★★ &bull; epic (4%) ★★★★ &bull; legendary (1%) ★★★★★<br>
+  <strong>Stats:</strong> DEBUGGING, PATIENCE, CHAOS, WISDOM, SNARK (deterministic from user hash)<br>
+  <strong>Source:</strong> <code>src/buddy/sprites.ts</code> &amp; <code>src/buddy/types.ts</code> in Claude Code v2.1.88
+</div>
+
+<script>
+const SPECIES_DATA = {
+  duck: {
+    frames: [
+      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--´    '],
+      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--´~   '],
+      ['            ','    __      ','  <({E} )___  ','   (  .__>  ','    `--´    '],
+    ],
+    face: e => `(${e}>`
+  },
+  goose: {
+    frames: [
+      ['            ','     ({E}>    ','     ||     ','   _(__)_   ','    ^^^^    '],
+      ['            ','    ({E}>     ','     ||     ','   _(__)_   ','    ^^^^    '],
+      ['            ','     ({E}>>   ','     ||     ','   _(__)_   ','    ^^^^    '],
+    ],
+    face: e => `(${e}>`
+  },
+  blob: {
+    frames: [
+      ['            ','   .----.   ','  ( {E}  {E} )  ','  (      )  ','   `----´   '],
+      ['            ','  .------.  ',' (  {E}  {E}  ) ',' (        ) ','  `------´  '],
+      ['            ','    .--.    ','   ({E}  {E})   ','   (    )   ','    `--´    '],
+    ],
+    face: e => `(${e}${e})`
+  },
+  cat: {
+    frames: [
+      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")   '],
+      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")~  '],
+      ['            ','   /\\-/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")   '],
+    ],
+    face: e => `=${e}ω${e}=`
+  },
+  dragon: {
+    frames: [
+      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-´  '],
+      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (        ) ','  `-vvvv-´  '],
+      ['   ~    ~   ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-´  '],
+    ],
+    face: e => `<${e}~${e}>`
+  },
+  octopus: {
+    frames: [
+      ['            ','   .----.   ','  ( {E}  {E} )  ','  (______)  ','  /\\/\\/\\/\\  '],
+      ['            ','   .----.   ','  ( {E}  {E} )  ','  (______)  ','  \\/\\/\\/\\/  '],
+      ['     o      ','   .----.   ','  ( {E}  {E} )  ','  (______)  ','  /\\/\\/\\/\\  '],
+    ],
+    face: e => `~(${e}${e})~`
+  },
+  owl: {
+    frames: [
+      ['            ','   /\\  /\\   ','  (({E})({E}))  ','  (  ><  )  ','   `----´   '],
+      ['            ','   /\\  /\\   ','  (({E})({E}))  ','  (  ><  )  ','   .----.   '],
+      ['            ','   /\\  /\\   ','  (({E})(-))  ','  (  ><  )  ','   `----´   '],
+    ],
+    face: e => `(${e})(${e})`
+  },
+  penguin: {
+    frames: [
+      ['            ','  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---´     '],
+      ['            ','  .---.     ','  ({E}>{E})     ',' |(   )|    ','  `---´     '],
+      ['  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---´     ','   ~ ~      '],
+    ],
+    face: e => `(${e}>)`
+  },
+  turtle: {
+    frames: [
+      ['            ','   _,--._   ','  ( {E}  {E} )  ',' /[______]\\ ','  ``    ``  '],
+      ['            ','   _,--._   ','  ( {E}  {E} )  ',' /[______]\\ ','   ``  ``   '],
+      ['            ','   _,--._   ','  ( {E}  {E} )  ',' /[======]\\ ','  ``    ``  '],
+    ],
+    face: e => `[${e}_${e}]`
+  },
+  snail: {
+    frames: [
+      ['            ',' {E}    .--.  ','  \\  ( @ )  ','   \\_`--´   ','  ~~~~~~~   '],
+      ['            ','  {E}   .--.  ','  |  ( @ )  ','   \\_`--´   ','  ~~~~~~~   '],
+      ['            ',' {E}    .--.  ','  \\  ( @  ) ','   \\_`--´   ','   ~~~~~~   '],
+    ],
+    face: e => `${e}(@)`
+  },
+  ghost: {
+    frames: [
+      ['            ','   .----.   ','  / {E}  {E} \\  ','  |      |  ','  ~`~``~`~  '],
+      ['            ','   .----.   ','  / {E}  {E} \\  ','  |      |  ','  `~`~~`~`  '],
+      ['    ~  ~    ','   .----.   ','  / {E}  {E} \\  ','  |      |  ','  ~~`~~`~~  '],
+    ],
+    face: e => `/${e}${e}\\`
+  },
+  axolotl: {
+    frames: [
+      ['            ','}~(______)~{','}~({E} .. {E})~{','  ( .--. )  ','  (_/  \\_)  '],
+      ['            ','~}(______){~','~}({E} .. {E}){~','  ( .--. )  ','  (_/  \\_)  '],
+      ['            ','}~(______)~{','}~({E} .. {E})~{','  (  --  )  ','  ~_/  \\_~  '],
+    ],
+    face: e => `}${e}.${e}{`
+  },
+  capybara: {
+    frames: [
+      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------´  '],
+      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   Oo   ) ','  `------´  '],
+      ['    ~  ~    ','  u______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------´  '],
+    ],
+    face: e => `(${e}oo${e})`
+  },
+  cactus: {
+    frames: [
+      ['            ',' n  ____  n ',' | |{E}  {E}| | ',' |_|    |_| ','   |    |   '],
+      ['            ','    ____    ',' n |{E}  {E}| n ',' |_|    |_| ','   |    |   '],
+      [' n        n ',' |  ____  | ',' | |{E}  {E}| | ',' |_|    |_| ','   |    |   '],
+    ],
+    face: e => `|${e}  ${e}|`
+  },
+  robot: {
+    frames: [
+      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------´  '],
+      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ -==- ]  ','  `------´  '],
+      ['     *      ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------´  '],
+    ],
+    face: e => `[${e}${e}]`
+  },
+  rabbit: {
+    frames: [
+      ['            ','   (\\__/)   ','  ( {E}  {E} )  ',' =(  ..  )= ','  (")__(")  '],
+      ['            ','   (|__/)   ','  ( {E}  {E} )  ',' =(  ..  )= ','  (")__(")  '],
+      ['            ','   (\\__/)   ','  ( {E}  {E} )  ',' =( .  . )= ','  (")__(")  '],
+    ],
+    face: e => `(${e}..${e})`
+  },
+  mushroom: {
+    frames: [
+      ['            ',' .-o-OO-o-. ','(__________)','   |{E}  {E}|   ','   |____|   '],
+      ['            ',' .-O-oo-O-. ','(__________)','   |{E}  {E}|   ','   |____|   '],
+      ['   . o  .   ',' .-o-OO-o-. ','(__________)','   |{E}  {E}|   ','   |____|   '],
+    ],
+    face: e => `|${e}  ${e}|`
+  },
+  chonk: {
+    frames: [
+      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´  '],
+      ['            ','  /\\    /|  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´  '],
+      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´~ '],
+    ],
+    face: e => `(${e}.${e})`
+  },
+};
+
+const HATS = {
+  none: '',
+  crown: '   \\^^^/    ',
+  tophat: '   [___]    ',
+  propeller: '    -+-     ',
+  halo: '   (   )    ',
+  wizard: '    /^\\     ',
+  beanie: '   (___)    ',
+  tinyduck: '    ,>      ',
+};
+
+let currentEye = '·';
+let animating = false;
+let animFrame = 0;
+let animInterval = null;
+
+function renderFrame(lines, eye) {
+  return lines.map(l => l.replaceAll('{E}', eye)).join('\n');
+}
+
+function buildGallery() {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  for (const [name, data] of Object.entries(SPECIES_DATA)) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.species = name;
+    const faceStr = data.face(currentEye);
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="species-name">${name}</span>
+        <span class="face">${escapeHtml(faceStr)}</span>
+      </div>
+      <div class="frames">
+        ${data.frames.map((f, i) => `
+          <div class="frame-box${animating && (animFrame % 3) === i ? ' active' : ''}">
+            <span class="frame-label">F${i}</span>
+            <pre>${escapeHtml(renderFrame(f, currentEye))}</pre>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    gallery.appendChild(card);
+  }
+}
+
+function buildHats() {
+  const container = document.getElementById('hats');
+  container.innerHTML = '';
+  for (const [name, line] of Object.entries(HATS)) {
+    if (name === 'none') continue;
+    const card = document.createElement('div');
+    card.className = 'hat-card';
+    card.innerHTML = `<div class="hat-name">${name}</div><pre>${escapeHtml(line)}</pre>`;
+    container.appendChild(card);
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Eye switcher
+document.querySelectorAll('.eye-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.eye-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentEye = btn.dataset.eye;
+    buildGallery();
+  });
+});
+
+// Animate toggle
+document.getElementById('animateBtn').addEventListener('click', function() {
+  animating = !animating;
+  this.classList.toggle('active', animating);
+  this.textContent = animating ? 'Stop' : 'Animate';
+  if (animating) {
+    animInterval = setInterval(() => { animFrame++; buildGallery(); }, 600);
+  } else {
+    clearInterval(animInterval);
+    buildGallery();
+  }
+});
+
+buildGallery();
+buildHats();
+</script>
+</body>
+</html>
