@@ -9,76 +9,196 @@
   body {
     background: #1a1a2e; color: #e0e0e0;
     font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-    padding: 2rem;
+    padding: 1.5rem 2rem;
   }
   h1 { text-align: center; font-size: 1.8rem; margin-bottom: 0.3rem; color: #f5a623; }
-  .subtitle { text-align: center; color: #888; margin-bottom: 2rem; font-size: 0.85rem; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 1.5rem; font-size: 0.85rem; }
+
+  /* === Controls === */
+  .controls {
+    max-width: 1400px; margin: 0 auto 1.2rem;
+    display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: center;
+  }
+  .control-group {
+    display: flex; align-items: center; gap: 0.3rem;
+    background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 0.35rem 0.6rem;
+  }
+  .control-label { color: #888; font-size: 0.7rem; margin-right: 0.3rem; white-space: nowrap; }
+  .controls button {
+    background: #0f3460; color: #e0e0e0; border: 1px solid transparent;
+    padding: 0.25rem 0.55rem; border-radius: 5px; cursor: pointer; font-family: inherit;
+    font-size: 0.72rem; transition: all 0.15s;
+  }
+  .controls button:hover { background: #1a3a6e; }
+  .controls button.active { background: #f5a623; color: #1a1a2e; font-weight: 700; }
+  .controls button.active-red { background: #e94560; color: #fff; font-weight: 700; }
+
+  /* === Grid === */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.2rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1rem;
     max-width: 1400px;
     margin: 0 auto;
   }
+
+  /* === Card === */
   .card {
     background: #16213e;
     border: 1px solid #0f3460;
     border-radius: 10px;
-    padding: 1rem 1.2rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 0.8rem 1rem;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
   }
   .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(245,166,35,0.15);
-    border-color: #f5a623;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245,166,35,0.12);
   }
+  .card.shiny-on {
+    border-color: transparent;
+    animation: shinyBorder 2s linear infinite;
+  }
+  @keyframes shinyBorder {
+    0%   { border-color: #f5a623; box-shadow: 0 0 8px #f5a62355; }
+    25%  { border-color: #e94560; box-shadow: 0 0 8px #e9456055; }
+    50%  { border-color: #00d2ff; box-shadow: 0 0 8px #00d2ff55; }
+    75%  { border-color: #a855f7; box-shadow: 0 0 8px #a855f755; }
+    100% { border-color: #f5a623; box-shadow: 0 0 8px #f5a62355; }
+  }
+  .shiny-badge {
+    position: absolute; top: 6px; right: 8px;
+    font-size: 0.9rem; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  }
+  .card.shiny-on .shiny-badge { opacity: 1; animation: shinyPulse 1.5s ease-in-out infinite; }
+  @keyframes shinyPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+  }
+
+  /* Card header */
   .card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 0.6rem; border-bottom: 1px solid #0f3460; padding-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.5rem; padding-bottom: 0.4rem; border-bottom: 1px solid #0f3460;
   }
-  .species-name { font-size: 1.1rem; font-weight: 700; color: #e94560; text-transform: capitalize; }
-  .face { color: #f5a623; font-size: 0.9rem; }
-  .frames { display: flex; gap: 0.6rem; justify-content: center; }
+  .species-name { font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+  .face { color: #f5a623; font-size: 0.85rem; margin-left: auto; }
+
+  /* Rarity selector in card */
+  .rarity-row {
+    display: flex; align-items: center; gap: 0.3rem;
+    margin-bottom: 0.5rem; flex-wrap: wrap;
+  }
+  .rarity-btn {
+    background: none; border: 1px solid #333; color: #888;
+    padding: 0.15rem 0.4rem; border-radius: 4px; cursor: pointer;
+    font-family: inherit; font-size: 0.62rem; transition: all 0.15s;
+  }
+  .rarity-btn:hover { border-color: #666; color: #ccc; }
+  .rarity-btn.active { font-weight: 700; }
+  .rarity-btn[data-rarity="common"].active { border-color: #888; color: #aaa; background: #88888822; }
+  .rarity-btn[data-rarity="uncommon"].active { border-color: #4ade80; color: #4ade80; background: #4ade8022; }
+  .rarity-btn[data-rarity="rare"].active { border-color: #60a5fa; color: #60a5fa; background: #60a5fa22; }
+  .rarity-btn[data-rarity="epic"].active { border-color: #a855f7; color: #a855f7; background: #a855f722; }
+  .rarity-btn[data-rarity="legendary"].active { border-color: #f5a623; color: #f5a623; background: #f5a62322; }
+
+  .rarity-info { font-size: 0.6rem; color: #666; margin-left: 0.3rem; }
+
+  /* Shiny toggle */
+  .shiny-toggle {
+    margin-left: auto; background: none; border: 1px solid #333; color: #666;
+    padding: 0.15rem 0.4rem; border-radius: 4px; cursor: pointer;
+    font-family: inherit; font-size: 0.62rem; transition: all 0.15s;
+  }
+  .shiny-toggle:hover { border-color: #666; }
+  .shiny-toggle.active { border-color: #f5a623; color: #f5a623; background: #f5a62322; }
+
+  /* Sprite display */
+  .sprite-area { position: relative; }
+
+  /* Static mode: 3 frames side by side */
+  .frames { display: flex; gap: 0.5rem; justify-content: center; }
   .frame-box {
-    background: #0a0a1a; border-radius: 6px; padding: 0.5rem 0.6rem;
+    background: #0a0a1a; border-radius: 6px; padding: 0.4rem 0.5rem;
     position: relative; min-width: 0; flex: 1;
   }
   .frame-label {
     position: absolute; top: 2px; right: 6px;
-    font-size: 0.55rem; color: #555; font-weight: 600;
+    font-size: 0.5rem; color: #444; font-weight: 600;
   }
   .frame-box pre {
-    font-size: 0.72rem; line-height: 1.25; white-space: pre;
+    font-size: 0.68rem; line-height: 1.2; white-space: pre;
     color: #c8d6e5; margin: 0; text-align: center;
   }
-  .frame-box.active pre { color: #f5a623; }
-  .hats-section {
-    margin-top: 3rem; max-width: 1400px; margin-left: auto; margin-right: auto;
+  .frame-box.current-frame { outline: 1px solid #f5a62366; }
+
+  /* Animate mode: single large frame + small thumbs */
+  .anim-display { display: none; gap: 0.6rem; align-items: flex-start; }
+  .anim-display.visible { display: flex; }
+  .anim-main {
+    background: #0a0a1a; border-radius: 8px; padding: 0.6rem 0.8rem;
+    flex: 2;
   }
-  .hats-section h2 { color: #f5a623; margin-bottom: 1rem; font-size: 1.3rem; }
-  .hats-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
-  .hat-card {
-    background: #16213e; border: 1px solid #0f3460; border-radius: 8px;
-    padding: 0.8rem 1rem; text-align: center;
+  .anim-main pre {
+    font-size: 0.82rem; line-height: 1.3; white-space: pre;
+    margin: 0; text-align: center; min-height: 5.5em;
   }
-  .hat-card .hat-name { color: #e94560; font-weight: 600; margin-bottom: 0.3rem; text-transform: capitalize; }
-  .hat-card pre { font-size: 0.8rem; color: #c8d6e5; margin: 0; }
-  .eyes-section { margin-top: 2rem; max-width: 1400px; margin-left: auto; margin-right: auto; }
-  .eyes-section h2 { color: #f5a623; margin-bottom: 0.5rem; font-size: 1.3rem; }
-  .eyes-list { display: flex; gap: 1.5rem; font-size: 1.5rem; color: #c8d6e5; }
-  .eye-item { text-align: center; }
-  .eye-item span { display: block; font-size: 0.7rem; color: #888; margin-top: 0.2rem; }
-  .controls { text-align: center; margin-bottom: 1.5rem; }
-  .controls button {
-    background: #0f3460; color: #e0e0e0; border: 1px solid #f5a623;
-    padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-family: inherit;
-    font-size: 0.8rem; margin: 0 0.3rem;
+  .anim-thumbs { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+  .anim-thumb {
+    background: #0a0a1a; border-radius: 4px; padding: 0.2rem 0.3rem;
+    opacity: 0.4; transition: opacity 0.15s;
   }
-  .controls button.active { background: #f5a623; color: #1a1a2e; font-weight: 700; }
-  .controls button:hover { background: #e94560; border-color: #e94560; color: #fff; }
-  .info { max-width: 1400px; margin: 2rem auto 0; padding: 1rem; background: #16213e;
-    border-radius: 8px; border: 1px solid #0f3460; font-size: 0.8rem; color: #888; line-height: 1.6; }
+  .anim-thumb.active { opacity: 1; outline: 1px solid #f5a62366; }
+  .anim-thumb pre {
+    font-size: 0.42rem; line-height: 1.15; white-space: pre;
+    color: #c8d6e5; margin: 0; text-align: center;
+  }
+
+  /* Shiny sprite effect */
+  .shiny-sprite pre {
+    animation: shinyText 3s linear infinite;
+    background: linear-gradient(90deg, #c8d6e5, #f5a623, #e94560, #00d2ff, #a855f7, #c8d6e5);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  @keyframes shinyText {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  /* Rarity-colored name */
+  .rarity-common .species-name { color: #aaa; }
+  .rarity-uncommon .species-name { color: #4ade80; }
+  .rarity-rare .species-name { color: #60a5fa; }
+  .rarity-epic .species-name { color: #a855f7; }
+  .rarity-legendary .species-name { color: #f5a623; }
+
+  /* Info bar */
+  .info {
+    max-width: 1400px; margin: 1.5rem auto 0; padding: 0.8rem 1rem; background: #16213e;
+    border-radius: 8px; border: 1px solid #0f3460; font-size: 0.75rem; color: #888; line-height: 1.6;
+  }
   .info strong { color: #f5a623; }
+  .info code { background: #0a0a1a; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.7rem; }
+
+  /* Sequence visualization */
+  .seq-viz {
+    max-width: 1400px; margin: 1rem auto 0;
+    display: none; text-align: center;
+  }
+  .seq-viz.visible { display: block; }
+  .seq-viz .seq-label { font-size: 0.65rem; color: #666; margin-bottom: 0.3rem; }
+  .seq-cells { display: inline-flex; gap: 2px; }
+  .seq-cell {
+    width: 18px; height: 18px; border-radius: 3px;
+    font-size: 0.55rem; display: flex; align-items: center; justify-content: center;
+    background: #0f3460; color: #888;
+  }
+  .seq-cell.active { background: #f5a623; color: #1a1a2e; font-weight: 700; }
+  .seq-cell.blink { background: #e94560; color: #fff; }
 </style>
 </head>
 <body>
@@ -87,37 +207,82 @@
 <p class="subtitle">18 Species / 6 Eyes / 8 Hats / 5 Rarities &mdash; ASCII Art Companion System</p>
 
 <div class="controls">
-  <span style="color:#888; font-size:0.8rem; margin-right:0.5rem;">Eye Style:</span>
-  <button class="eye-btn active" data-eye="·">· (default)</button>
-  <button class="eye-btn" data-eye="✦">✦</button>
-  <button class="eye-btn" data-eye="×">×</button>
-  <button class="eye-btn" data-eye="◉">◉</button>
-  <button class="eye-btn" data-eye="@">@</button>
-  <button class="eye-btn" data-eye="°">°</button>
-  &nbsp;&nbsp;
-  <button id="animateBtn">Animate</button>
+  <div class="control-group">
+    <span class="control-label">Eye:</span>
+    <button class="eye-btn active" data-eye="·">·</button>
+    <button class="eye-btn" data-eye="✦">✦</button>
+    <button class="eye-btn" data-eye="×">×</button>
+    <button class="eye-btn" data-eye="◉">◉</button>
+    <button class="eye-btn" data-eye="@">@</button>
+    <button class="eye-btn" data-eye="°">°</button>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Hat:</span>
+    <button class="hat-btn active" data-hat="none">None</button>
+    <button class="hat-btn" data-hat="crown">\^^^/</button>
+    <button class="hat-btn" data-hat="tophat">[___]</button>
+    <button class="hat-btn" data-hat="propeller">-+-</button>
+    <button class="hat-btn" data-hat="halo">( )</button>
+    <button class="hat-btn" data-hat="wizard">/^\</button>
+    <button class="hat-btn" data-hat="beanie">(___)</button>
+    <button class="hat-btn" data-hat="tinyduck">,></button>
+  </div>
+  <div class="control-group">
+    <button id="animateBtn">Animate</button>
+  </div>
+</div>
+
+<div class="seq-viz" id="seqViz">
+  <div class="seq-label">IDLE_SEQUENCE (500ms/tick, 15-step cycle)</div>
+  <div class="seq-cells" id="seqCells"></div>
 </div>
 
 <div class="grid" id="gallery"></div>
 
-<div class="hats-section">
-  <h2>Hats</h2>
-  <div class="hats-grid" id="hats"></div>
-</div>
-
 <div class="info">
-  <strong>Rarity System:</strong> common (60%) ★ &bull; uncommon (25%) ★★ &bull; rare (10%) ★★★ &bull; epic (4%) ★★★★ &bull; legendary (1%) ★★★★★<br>
-  <strong>Stats:</strong> DEBUGGING, PATIENCE, CHAOS, WISDOM, SNARK (deterministic from user hash)<br>
-  <strong>Source:</strong> <code>src/buddy/sprites.ts</code> &amp; <code>src/buddy/types.ts</code> in Claude Code v2.1.88
+  <strong>Rarity:</strong>
+  <span style="color:#aaa">common (60%) ★</span> &bull;
+  <span style="color:#4ade80">uncommon (25%) ★★</span> &bull;
+  <span style="color:#60a5fa">rare (10%) ★★★</span> &bull;
+  <span style="color:#a855f7">epic (4%) ★★★★</span> &bull;
+  <span style="color:#f5a623">legendary (1%) ★★★★★</span>
+  &nbsp;|&nbsp; <strong>Shiny:</strong> 1% chance, no visual impl in source yet (we added sparkle effect)
+  &nbsp;|&nbsp; <strong>Hat rule:</strong> common = no hat; uncommon+ gets a random hat<br>
+  <strong>Animation:</strong> <code>IDLE_SEQUENCE = [0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0]</code> — mostly idle, occasional fidget, -1 = blink (eyes → <code>-</code>)<br>
+  <strong>Source:</strong> <code>sprites.ts</code>, <code>companion.ts</code>, <code>CompanionSprite.tsx</code> in Claude Code v2.1.88
 </div>
 
 <script>
+// ─── Data ────────────────────────────────────────────────────────
+const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
+const TICK_MS = 500;
+
+const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+const RARITY_META = {
+  common:    { stars: '\u2605',         pct: '60%', color: '#aaa' },
+  uncommon:  { stars: '\u2605\u2605',     pct: '25%', color: '#4ade80' },
+  rare:      { stars: '\u2605\u2605\u2605',   pct: '10%', color: '#60a5fa' },
+  epic:      { stars: '\u2605\u2605\u2605\u2605', pct: '4%',  color: '#a855f7' },
+  legendary: { stars: '\u2605\u2605\u2605\u2605\u2605', pct: '1%', color: '#f5a623' },
+};
+
+const HAT_LINES = {
+  none: '',
+  crown:     '   \\^^^/    ',
+  tophat:    '   [___]    ',
+  propeller: '    -+-     ',
+  halo:      '   (   )    ',
+  wizard:    '    /^\\     ',
+  beanie:    '   (___)    ',
+  tinyduck:  '    ,>      ',
+};
+
 const SPECIES_DATA = {
   duck: {
     frames: [
-      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--´    '],
-      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--´~   '],
-      ['            ','    __      ','  <({E} )___  ','   (  .__>  ','    `--´    '],
+      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--\u00b4    '],
+      ['            ','    __      ','  <({E} )___  ','   (  ._>   ','    `--\u00b4~   '],
+      ['            ','    __      ','  <({E} )___  ','   (  .__>  ','    `--\u00b4    '],
     ],
     face: e => `(${e}>`
   },
@@ -131,25 +296,25 @@ const SPECIES_DATA = {
   },
   blob: {
     frames: [
-      ['            ','   .----.   ','  ( {E}  {E} )  ','  (      )  ','   `----´   '],
-      ['            ','  .------.  ',' (  {E}  {E}  ) ',' (        ) ','  `------´  '],
-      ['            ','    .--.    ','   ({E}  {E})   ','   (    )   ','    `--´    '],
+      ['            ','   .----.   ','  ( {E}  {E} )  ','  (      )  ','   `----\u00b4   '],
+      ['            ','  .------.  ',' (  {E}  {E}  ) ',' (        ) ','  `------\u00b4  '],
+      ['            ','    .--.    ','   ({E}  {E})   ','   (    )   ','    `--\u00b4    '],
     ],
     face: e => `(${e}${e})`
   },
   cat: {
     frames: [
-      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")   '],
-      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")~  '],
-      ['            ','   /\\-/\\    ','  ( {E}   {E})  ','  (  ω  )   ','  (")_(")   '],
+      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  \u03c9  )   ','  (")_(")   '],
+      ['            ','   /\\_/\\    ','  ( {E}   {E})  ','  (  \u03c9  )   ','  (")_(")~  '],
+      ['            ','   /\\-/\\    ','  ( {E}   {E})  ','  (  \u03c9  )   ','  (")_(")   '],
     ],
-    face: e => `=${e}ω${e}=`
+    face: e => `=${e}\u03c9${e}=`
   },
   dragon: {
     frames: [
-      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-´  '],
-      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (        ) ','  `-vvvv-´  '],
-      ['   ~    ~   ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-´  '],
+      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-\u00b4  '],
+      ['            ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (        ) ','  `-vvvv-\u00b4  '],
+      ['   ~    ~   ','  /^\\  /^\\  ',' <  {E}  {E}  > ',' (   ~~   ) ','  `-vvvv-\u00b4  '],
     ],
     face: e => `<${e}~${e}>`
   },
@@ -163,17 +328,17 @@ const SPECIES_DATA = {
   },
   owl: {
     frames: [
-      ['            ','   /\\  /\\   ','  (({E})({E}))  ','  (  ><  )  ','   `----´   '],
+      ['            ','   /\\  /\\   ','  (({E})({E}))  ','  (  ><  )  ','   `----\u00b4   '],
       ['            ','   /\\  /\\   ','  (({E})({E}))  ','  (  ><  )  ','   .----.   '],
-      ['            ','   /\\  /\\   ','  (({E})(-))  ','  (  ><  )  ','   `----´   '],
+      ['            ','   /\\  /\\   ','  (({E})(-))  ','  (  ><  )  ','   `----\u00b4   '],
     ],
     face: e => `(${e})(${e})`
   },
   penguin: {
     frames: [
-      ['            ','  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---´     '],
-      ['            ','  .---.     ','  ({E}>{E})     ',' |(   )|    ','  `---´     '],
-      ['  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---´     ','   ~ ~      '],
+      ['            ','  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---\u00b4     '],
+      ['            ','  .---.     ','  ({E}>{E})     ',' |(   )|    ','  `---\u00b4     '],
+      ['  .---.     ','  ({E}>{E})     ',' /(   )\\    ','  `---\u00b4     ','   ~ ~      '],
     ],
     face: e => `(${e}>)`
   },
@@ -187,9 +352,9 @@ const SPECIES_DATA = {
   },
   snail: {
     frames: [
-      ['            ',' {E}    .--.  ','  \\  ( @ )  ','   \\_`--´   ','  ~~~~~~~   '],
-      ['            ','  {E}   .--.  ','  |  ( @ )  ','   \\_`--´   ','  ~~~~~~~   '],
-      ['            ',' {E}    .--.  ','  \\  ( @  ) ','   \\_`--´   ','   ~~~~~~   '],
+      ['            ',' {E}    .--.  ','  \\  ( @ )  ','   \\_`--\u00b4   ','  ~~~~~~~   '],
+      ['            ','  {E}   .--.  ','  |  ( @ )  ','   \\_`--\u00b4   ','  ~~~~~~~   '],
+      ['            ',' {E}    .--.  ','  \\  ( @  ) ','   \\_`--\u00b4   ','   ~~~~~~   '],
     ],
     face: e => `${e}(@)`
   },
@@ -211,9 +376,9 @@ const SPECIES_DATA = {
   },
   capybara: {
     frames: [
-      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------´  '],
-      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   Oo   ) ','  `------´  '],
-      ['    ~  ~    ','  u______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------´  '],
+      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------\u00b4  '],
+      ['            ','  n______n  ',' ( {E}    {E} ) ',' (   Oo   ) ','  `------\u00b4  '],
+      ['    ~  ~    ','  u______n  ',' ( {E}    {E} ) ',' (   oo   ) ','  `------\u00b4  '],
     ],
     face: e => `(${e}oo${e})`
   },
@@ -227,9 +392,9 @@ const SPECIES_DATA = {
   },
   robot: {
     frames: [
-      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------´  '],
-      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ -==- ]  ','  `------´  '],
-      ['     *      ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------´  '],
+      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------\u00b4  '],
+      ['            ','   .[||].   ','  [ {E}  {E} ]  ','  [ -==- ]  ','  `------\u00b4  '],
+      ['     *      ','   .[||].   ','  [ {E}  {E} ]  ','  [ ==== ]  ','  `------\u00b4  '],
     ],
     face: e => `[${e}${e}]`
   },
@@ -251,76 +416,167 @@ const SPECIES_DATA = {
   },
   chonk: {
     frames: [
-      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´  '],
-      ['            ','  /\\    /|  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´  '],
-      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------´~ '],
+      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------\u00b4  '],
+      ['            ','  /\\    /|  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------\u00b4  '],
+      ['            ','  /\\    /\\  ',' ( {E}    {E} ) ',' (   ..   ) ','  `------\u00b4~ '],
     ],
     face: e => `(${e}.${e})`
   },
 };
 
-const HATS = {
-  none: '',
-  crown: '   \\^^^/    ',
-  tophat: '   [___]    ',
-  propeller: '    -+-     ',
-  halo: '   (   )    ',
-  wizard: '    /^\\     ',
-  beanie: '   (___)    ',
-  tinyduck: '    ,>      ',
-};
-
-let currentEye = '·';
+// ─── State ───────────────────────────────────────────────────────
+let currentEye = '\u00b7';
+let currentHat = 'none';
 let animating = false;
-let animFrame = 0;
+let tick = 0;
 let animInterval = null;
-
-function renderFrame(lines, eye) {
-  return lines.map(l => l.replaceAll('{E}', eye)).join('\n');
+// Per-species state
+const speciesState = {};
+for (const name of Object.keys(SPECIES_DATA)) {
+  speciesState[name] = { rarity: 'common', shiny: false };
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Apply eye + hat to a frame (array of 5 lines), returns new array
+function renderLines(frameLines, eye, hat, isBlink) {
+  const lines = frameLines.map(l => {
+    let out = l.replaceAll('{E}', isBlink ? '-' : eye);
+    return out;
+  });
+  // Hat: replace line 0 only if it's blank (matches source renderSprite logic)
+  if (hat !== 'none' && !lines[0].trim()) {
+    lines[0] = HAT_LINES[hat];
+  }
+  return lines;
+}
+
+function renderToString(lines) {
+  return lines.join('\n');
+}
+
+// Get effective hat for a species given its rarity and the global hat selector
+function getEffectiveHat(species, rarity) {
+  // Source rule: common = no hat
+  if (rarity === 'common') return 'none';
+  return currentHat;
+}
+
+// ─── Sequence viz ────────────────────────────────────────────────
+function buildSeqViz() {
+  const container = document.getElementById('seqCells');
+  container.innerHTML = IDLE_SEQUENCE.map((v, i) => {
+    const label = v === -1 ? 'B' : `${v}`;
+    return `<div class="seq-cell" data-idx="${i}">${label}</div>`;
+  }).join('');
+}
+
+function updateSeqViz() {
+  const idx = tick % IDLE_SEQUENCE.length;
+  const cells = document.querySelectorAll('.seq-cell');
+  cells.forEach((c, i) => {
+    c.classList.toggle('active', i === idx && IDLE_SEQUENCE[i] !== -1);
+    c.classList.toggle('blink', i === idx && IDLE_SEQUENCE[i] === -1);
+  });
+}
+
+// ─── Build gallery ───────────────────────────────────────────────
 function buildGallery() {
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
+
+  const seqStep = IDLE_SEQUENCE[tick % IDLE_SEQUENCE.length];
+  const isBlink = seqStep === -1;
+  const displayFrame = isBlink ? 0 : seqStep;
+
   for (const [name, data] of Object.entries(SPECIES_DATA)) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.species = name;
+    const st = speciesState[name];
+    const rarity = st.rarity;
+    const shiny = st.shiny;
+    const rm = RARITY_META[rarity];
+    const hat = getEffectiveHat(name, rarity);
     const faceStr = data.face(currentEye);
-    card.innerHTML = `
-      <div class="card-header">
-        <span class="species-name">${name}</span>
-        <span class="face">${escapeHtml(faceStr)}</span>
-      </div>
-      <div class="frames">
-        ${data.frames.map((f, i) => `
-          <div class="frame-box${animating && (animFrame % 3) === i ? ' active' : ''}">
-            <span class="frame-label">F${i}</span>
-            <pre>${escapeHtml(renderFrame(f, currentEye))}</pre>
-          </div>
-        `).join('')}
-      </div>
-    `;
+
+    const card = document.createElement('div');
+    card.className = `card rarity-${rarity}${shiny ? ' shiny-on' : ''}`;
+    card.dataset.species = name;
+
+    // ── Header ──
+    let html = `<div class="shiny-badge">\u2728</div>`;
+    html += `<div class="card-header">`;
+    html += `<span class="species-name">${name}</span>`;
+    html += `<span class="face">${escapeHtml(faceStr)}</span>`;
+    html += `</div>`;
+
+    // ── Rarity row ──
+    html += `<div class="rarity-row">`;
+    for (const r of RARITIES) {
+      const rm2 = RARITY_META[r];
+      html += `<button class="rarity-btn${r === rarity ? ' active' : ''}" data-rarity="${r}" data-species="${name}" title="${r} ${rm2.pct}">${rm2.stars}</button>`;
+    }
+    html += `<span class="rarity-info" style="color:${rm.color}">${rarity} ${rm.pct}</span>`;
+    html += `<button class="shiny-toggle${shiny ? ' active' : ''}" data-species="${name}" title="Toggle shiny (1% chance)">\u2728 Shiny</button>`;
+    html += `</div>`;
+
+    // ── Sprite area ──
+    html += `<div class="sprite-area">`;
+
+    if (animating) {
+      // Animate mode: large single frame + thumbs
+      const mainLines = renderLines(data.frames[displayFrame], currentEye, hat, isBlink);
+      html += `<div class="anim-display visible">`;
+      html += `<div class="anim-main${shiny ? ' shiny-sprite' : ''}"><pre>${escapeHtml(renderToString(mainLines))}</pre></div>`;
+      html += `<div class="anim-thumbs">`;
+      for (let i = 0; i < data.frames.length; i++) {
+        const thumbLines = renderLines(data.frames[i], currentEye, hat, false);
+        const isActive = (!isBlink && displayFrame === i) || (isBlink && i === 0);
+        html += `<div class="anim-thumb${isActive ? ' active' : ''}"><pre>${escapeHtml(renderToString(thumbLines))}</pre></div>`;
+      }
+      html += `</div></div>`;
+    } else {
+      // Static mode: 3 frames side by side
+      html += `<div class="frames">`;
+      for (let i = 0; i < data.frames.length; i++) {
+        const lines = renderLines(data.frames[i], currentEye, hat, false);
+        html += `<div class="frame-box${shiny ? ' shiny-sprite' : ''}">`;
+        html += `<span class="frame-label">F${i}</span>`;
+        html += `<pre>${escapeHtml(renderToString(lines))}</pre>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+
+    html += `</div>`; // sprite-area
+    card.innerHTML = html;
     gallery.appendChild(card);
   }
+
+  // Attach rarity button listeners
+  document.querySelectorAll('.rarity-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sp = btn.dataset.species;
+      const r = btn.dataset.rarity;
+      speciesState[sp].rarity = r;
+      buildGallery();
+    });
+  });
+
+  // Attach shiny toggle listeners
+  document.querySelectorAll('.shiny-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sp = btn.dataset.species;
+      speciesState[sp].shiny = !speciesState[sp].shiny;
+      buildGallery();
+    });
+  });
+
+  if (animating) updateSeqViz();
 }
 
-function buildHats() {
-  const container = document.getElementById('hats');
-  container.innerHTML = '';
-  for (const [name, line] of Object.entries(HATS)) {
-    if (name === 'none') continue;
-    const card = document.createElement('div');
-    card.className = 'hat-card';
-    card.innerHTML = `<div class="hat-name">${name}</div><pre>${escapeHtml(line)}</pre>`;
-    container.appendChild(card);
-  }
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
+// ─── Controls ────────────────────────────────────────────────────
 // Eye switcher
 document.querySelectorAll('.eye-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -331,21 +587,36 @@ document.querySelectorAll('.eye-btn').forEach(btn => {
   });
 });
 
+// Hat switcher
+document.querySelectorAll('.hat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.hat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentHat = btn.dataset.hat;
+    buildGallery();
+  });
+});
+
 // Animate toggle
 document.getElementById('animateBtn').addEventListener('click', function() {
   animating = !animating;
-  this.classList.toggle('active', animating);
+  this.classList.toggle('active-red', animating);
   this.textContent = animating ? 'Stop' : 'Animate';
+  document.getElementById('seqViz').classList.toggle('visible', animating);
+
   if (animating) {
-    animInterval = setInterval(() => { animFrame++; buildGallery(); }, 600);
+    tick = 0;
+    animInterval = setInterval(() => { tick++; buildGallery(); }, TICK_MS);
+    buildGallery();
   } else {
     clearInterval(animInterval);
     buildGallery();
   }
 });
 
+// ─── Init ────────────────────────────────────────────────────────
+buildSeqViz();
 buildGallery();
-buildHats();
 </script>
 </body>
 </html>
