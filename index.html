@@ -199,6 +199,47 @@
   }
   .seq-cell.active { background: #f5a623; color: #1a1a2e; font-weight: 700; }
   .seq-cell.blink { background: #e94560; color: #fff; }
+
+  /* === Popup Panel === */
+  .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; }
+  .popup-panel {
+    position: fixed; z-index: 1000;
+    background: #16213e; border: 1px solid #0f3460; border-radius: 10px;
+    padding: 0.8rem 1rem; width: 280px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: popupIn 0.15s ease-out;
+  }
+  @keyframes popupIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .popup-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding-bottom: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #0f3460;
+  }
+  .popup-species { font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+  .popup-rarity { font-size: 0.7rem; margin-left: auto; }
+  .popup-stat-row {
+    display: flex; align-items: center; gap: 0.4rem;
+    margin-bottom: 0.35rem; font-size: 0.72rem;
+  }
+  .popup-stat-name { width: 75px; color: #888; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.5px; }
+  .popup-stat-val { width: 28px; text-align: right; font-weight: 700; font-size: 0.72rem; }
+  .popup-stat-bar { flex: 1; height: 8px; background: #0a0a1a; border-radius: 4px; overflow: hidden; }
+  .popup-stat-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+  .popup-stat-row.peak .popup-stat-name { color: #f5a623; }
+  .popup-stat-row.peak .popup-stat-val { color: #f5a623; }
+  .popup-stat-row.peak .popup-stat-fill { background: linear-gradient(90deg, #f5a623, #e94560); }
+  .popup-stat-row.dump .popup-stat-name { color: #555; }
+  .popup-stat-row.dump .popup-stat-val { color: #555; }
+  .popup-stat-row.dump .popup-stat-fill { background: #333; }
+  .popup-stat-row:not(.peak):not(.dump) .popup-stat-fill { background: linear-gradient(90deg, #0f3460, #60a5fa); }
+  .popup-footer {
+    display: flex; gap: 0.6rem; align-items: center;
+    padding-top: 0.5rem; margin-top: 0.5rem; border-top: 1px solid #0f3460;
+    font-size: 0.65rem; color: #666;
+  }
+  .popup-footer span { display: flex; align-items: center; gap: 0.2rem; }
 </style>
 </head>
 <body>
@@ -612,6 +653,115 @@ document.getElementById('animateBtn').addEventListener('click', function() {
     clearInterval(animInterval);
     buildGallery();
   }
+});
+
+// ─── Stats Generation (matches companion.ts algorithm) ──────────
+const STAT_NAMES = ['DEBUGGING', 'PATIENCE', 'CHAOS', 'WISDOM', 'SNARK'];
+const RARITY_FLOOR = { common: 5, uncommon: 15, rare: 25, epic: 35, legendary: 50 };
+
+function generateStats(species, rarity) {
+  const key = species + '-' + rarity;
+  if (statsCache[key]) return statsCache[key];
+
+  const floor = RARITY_FLOOR[rarity];
+  // Simple seeded random from species name
+  let seed = 0;
+  for (let i = 0; i < species.length; i++) seed = (seed * 31 + species.charCodeAt(i)) | 0;
+  const rng = () => { seed = (seed * 1664525 + 1013904223) | 0; return ((seed >>> 0) % 1000) / 1000; };
+
+  const indices = [0, 1, 2, 3, 4];
+  const peakIdx = indices[Math.floor(rng() * 5)];
+  let dumpIdx;
+  do { dumpIdx = indices[Math.floor(rng() * 5)]; } while (dumpIdx === peakIdx);
+
+  const stats = {};
+  for (let i = 0; i < STAT_NAMES.length; i++) {
+    let val;
+    if (i === peakIdx) {
+      val = Math.min(100, floor + 50 + Math.floor(rng() * 30));
+    } else if (i === dumpIdx) {
+      val = Math.max(1, floor - 10 + Math.floor(rng() * 15));
+    } else {
+      val = floor + Math.floor(rng() * 40);
+    }
+    stats[STAT_NAMES[i]] = val;
+  }
+  statsCache[key] = { stats, peakIdx, dumpIdx };
+  return statsCache[key];
+}
+const statsCache = {};
+
+// ─── Popup Panel ─────────────────────────────────────────────────
+let popupEl = null;
+let overlayEl = null;
+
+function closePopup() {
+  if (popupEl) { popupEl.remove(); popupEl = null; }
+  if (overlayEl) { overlayEl.remove(); overlayEl = null; }
+}
+
+function showPopup(species, clickX, clickY) {
+  closePopup();
+  const st = speciesState[species];
+  const data = SPECIES_DATA[species];
+  const rm = RARITY_META[st.rarity];
+  const { stats, peakIdx, dumpIdx } = generateStats(species, st.rarity);
+  const hat = getEffectiveHat(species, st.rarity);
+  const faceStr = data.face(currentEye);
+
+  // Overlay to catch outside clicks
+  overlayEl = document.createElement('div');
+  overlayEl.className = 'popup-overlay';
+  overlayEl.addEventListener('click', closePopup);
+  document.body.appendChild(overlayEl);
+
+  // Panel
+  popupEl = document.createElement('div');
+  popupEl.className = 'popup-panel';
+
+  let html = `<div class="popup-header">`;
+  html += `<span class="popup-species" style="color:${rm.color}">${species}</span>`;
+  html += `<span class="popup-rarity" style="color:${rm.color}">${rm.stars} ${st.rarity}</span>`;
+  html += `</div>`;
+
+  for (let i = 0; i < STAT_NAMES.length; i++) {
+    const name = STAT_NAMES[i];
+    const val = stats[name];
+    const cls = i === peakIdx ? ' peak' : i === dumpIdx ? ' dump' : '';
+    html += `<div class="popup-stat-row${cls}">`;
+    html += `<span class="popup-stat-name">${name}</span>`;
+    html += `<span class="popup-stat-val">${val}</span>`;
+    html += `<div class="popup-stat-bar"><div class="popup-stat-fill" style="width:${val}%"></div></div>`;
+    html += `</div>`;
+  }
+
+  html += `<div class="popup-footer">`;
+  html += `<span>eye ${escapeHtml(currentEye)}</span>`;
+  html += `<span>hat ${hat}</span>`;
+  html += `<span>${st.shiny ? 'shiny' : ''}</span>`;
+  html += `</div>`;
+
+  popupEl.innerHTML = html;
+  document.body.appendChild(popupEl);
+
+  // Position: near click, avoid overflow
+  const pw = 280, ph = popupEl.offsetHeight;
+  let x = clickX + 10, y = clickY - ph / 2;
+  if (x + pw > window.innerWidth - 10) x = clickX - pw - 10;
+  if (y < 10) y = 10;
+  if (y + ph > window.innerHeight - 10) y = window.innerHeight - ph - 10;
+  popupEl.style.left = x + 'px';
+  popupEl.style.top = y + 'px';
+}
+
+// ─── Card click handler ──────────────────────────────────────────
+document.getElementById('gallery').addEventListener('click', (e) => {
+  // Don't trigger on rarity/shiny buttons
+  if (e.target.closest('.rarity-btn') || e.target.closest('.shiny-toggle')) return;
+  const card = e.target.closest('.card');
+  if (!card) return;
+  const species = card.dataset.species;
+  if (species) showPopup(species, e.clientX, e.clientY);
 });
 
 // ─── Init ────────────────────────────────────────────────────────
